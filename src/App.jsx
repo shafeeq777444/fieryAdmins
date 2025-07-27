@@ -5,6 +5,7 @@ import DashBoardLayout from "./Layouts/DashBoardLayout";
 import MenuManagement from "./pages/MenuManagment";
 import Subscriptions from "./pages/Subscriptions";
 import AddOnsPage from "./pages/AddOnsPage";
+import ProfilePage from "./pages/ProfilePage";
 
 
 function App() {
@@ -18,6 +19,7 @@ function App() {
                         <Route path="/menu" element={<MenuManagement />} />
                         <Route path="/subscriptions" element={<Subscriptions/>}/>
                         <Route path="/addons" element={<AddOnsPage/>}/>
+                        <Route path="/profile" element={<ProfilePage/>}/>
                     </Route>
                 </Routes>
            
