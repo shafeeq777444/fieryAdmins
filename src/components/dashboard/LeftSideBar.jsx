@@ -44,32 +44,37 @@ const Sidebar = () => {
     const vendors = [
         // { id: 1, name: "All", logo: "/demoLogos/alldemoLogo.png" },
         { id: 1, name: "Fiery Grills", logo: "/FieryGrills/logos/fieryLogo1.png" },
-        { id: 2, name: "Bakery Three", logo: "/demoLogos/demoLogo2.png" },
-        { id: 3, name: "Bar Four", logo: "/demoLogos/demoLogo1.png" },
-        { id: 4, name: "Food Truck Five", logo: "/demoLogos/demoLogo3.png" },
+        // { id: 2, name: "Bakery Three", logo: "/demoLogos/demoLogo2.png" },
+        // { id: 3, name: "Bar Four", logo: "/demoLogos/demoLogo1.png" },
+        // { id: 4, name: "Food Truck Five", logo: "/demoLogos/demoLogo3.png" },
     ];
 
     const menuItems = [
-        { name: "Dashboard", icon: <Home size={20} /> },
-        { name: "Weekly Menu", icon: <CalendarDays size={20} /> ,route:""},
-        { name: "Total Menu", icon: <UtensilsCrossed size={20} /> ,route:"/menu"},
-        { name: "Subscriptions", icon: <Receipt size={20} /> ,route:"/Subscriptions"},
-        { name: "Add Ons", icon: <Plus size={20} /> ,route:"/AddOns"},
-        { name: "Customers", icon: <Users size={20} /> },
-
-        // { name: 'Reviews', icon: <Receipt size={20} /> },
-        { name: "Gallery", icon: <Images size={20} /> },
+        // { name: "Dashboard", icon: <Home size={20} />, route: "/" },
+        // { name: "Weekly Menu", icon: <CalendarDays size={20} />, route: "/weeklymenu" },
+        // { name: "Total Menu", icon: <UtensilsCrossed size={20} />, route: "/menu" },
+        { name: "Offer Banners", icon: <Images size={20} />, route: "/offerbanners" },
+        { name: "Subscriptions", icon: <Receipt size={20} />, route: "/subscriptions" },
+        { name: "Add Ons", icon: <Plus size={20} />, route: "/addons" },
+        // { name: "Users", icon: <Users size={20} />, route: "/users" },
+        {name:"Profile", icon: <Users size={20} />, route: "/profile" },
+        // { name: "Customers", icon: <Users size={20} />, route: "/customers" },
+        // { name: "Gallery", icon: <Images size={20} />, route: "/gallery" },
     ];
 
     const bottomMenuItems = [
         // { name: 'Notifications', icon: <Bell size={20} /> },
-        { name: "Mails", icon: <Bell size={20} /> },
-        { name: "Logout", icon: <LogOut size={20} /> },
+        { name: "Mails", icon: <Bell size={20} />, route: "/mails" },
+        { name: "Logout", icon: <LogOut size={20} />, route: "/logout" },
     ];
 
-    const handleItemClick = (itemName,route) => {
+    const handleItemClick = (itemName, route) => {
         setActiveItem(itemName);
-        console.log(route,"--route")
+        console.log(route, "--route");
+        if (route) {
+            navigate(route); // 👈 this does the routing
+        }
+
         // On mobile, close the menu after item selection
         if (window.innerWidth < 768) {
             setIsMobileMenuOpen(false);
@@ -163,9 +168,7 @@ const Sidebar = () => {
                                     className={`w-full flex items-center px-6 py-3 text-left ${
                                         activeItem === item.name ? "text-white" : "text-gray-400"
                                     } hover:text-white transition-colors`}
-                                    onClick={() => handleItemClick(item.name)
-
-                                    }
+                                    onClick={() => handleItemClick(item.name, item.route)}
                                     type="button"
                                 >
                                     <span className="mr-3">{item.icon}</span>
@@ -188,7 +191,7 @@ const Sidebar = () => {
                                     className={`w-full flex items-center px-6 py-3 text-left ${
                                         activeItem === item.name ? "text-white" : "text-gray-400"
                                     } hover:text-white transition-colors`}
-                                    onClick={() => handleItemClick(item.name,item.route)}
+                                    onClick={() => handleItemClick(item.name, item.route)}
                                     type="button"
                                 >
                                     <span className="mr-3">{item.icon}</span>
@@ -202,7 +205,7 @@ const Sidebar = () => {
 
             {/* Mobile overlay backdrop */}
             {isMobileMenuOpen && (
-                <div className="md:hidden fixed inset-0 bg-black bg-opacity-50 z-10" onClick={toggleMobileMenu}></div>
+                <div className="md:hidden fixed inset-0 bg-black/10 bg-opacity-50 z-10" onClick={toggleMobileMenu}></div>
             )}
         </>
     );

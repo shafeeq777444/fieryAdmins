@@ -3,7 +3,7 @@ import { getContactDetails, updateContactDetails } from "../services/contactDeta
 import toast from "react-hot-toast"
 
 
-// getWeeklyMenus
+
 export const useGetContactDetails=()=>{ 
     return useQuery({
        queryKey:["contactDetails"],

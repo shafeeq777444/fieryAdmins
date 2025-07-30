@@ -6,6 +6,7 @@ import MenuManagement from "./pages/MenuManagment";
 import Subscriptions from "./pages/Subscriptions";
 import AddOnsPage from "./pages/AddOnsPage";
 import ProfilePage from "./pages/ProfilePage";
+import OfferBannerPage from "./pages/OfferBannerPage";
 
 
 function App() {
@@ -20,6 +21,7 @@ function App() {
                         <Route path="/subscriptions" element={<Subscriptions/>}/>
                         <Route path="/addons" element={<AddOnsPage/>}/>
                         <Route path="/profile" element={<ProfilePage/>}/>
+                        <Route path="/offerbanners" element={<OfferBannerPage/>}/>
                     </Route>
                 </Routes>
            
