@@ -7,6 +7,8 @@ import {
 } from '../services/queries/useOfferBanner';
 import OfferBannerFormModal from '../components/offerBanner/OfferBannerFormModal';
 import OfferBannerList from '../components/offerBanner/OfferBannerList';
+import OfferBannerSkeletonCard from '../components/skeltons/OfferBannerSKelton';
+
 
 
 
@@ -40,7 +42,9 @@ const OfferBannerContainer = ({ vendorId = "FG" }) => {
       deleteMutation.mutate({ id });
 
   };
-
+if(isLoading){
+  return (<>{Array.from({ length: 6 }).map((_, i) => <OfferBannerSkeletonCard key={i} />)}</>);
+}
   return (
     <div className="p-4">
       <div className="flex justify-between items-center mb-4">

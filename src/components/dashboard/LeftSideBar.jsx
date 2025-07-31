@@ -53,7 +53,7 @@ const Sidebar = () => {
         // { name: "Dashboard", icon: <Home size={20} />, route: "/" },
         // { name: "Weekly Menu", icon: <CalendarDays size={20} />, route: "/weeklymenu" },
         // { name: "Total Menu", icon: <UtensilsCrossed size={20} />, route: "/menu" },
-        { name: "Offer Banners", icon: <Images size={20} />, route: "/offerbanners" },
+        { name: "Offer Banners", icon: <Images size={20} />, route: "/" },
         { name: "Subscriptions", icon: <Receipt size={20} />, route: "/subscriptions" },
         { name: "Add Ons", icon: <Plus size={20} />, route: "/addons" },
         // { name: "Users", icon: <Users size={20} />, route: "/users" },
