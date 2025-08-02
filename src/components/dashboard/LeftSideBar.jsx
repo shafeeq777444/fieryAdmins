@@ -58,6 +58,7 @@ const Sidebar = () => {
         { name: "Add Ons", icon: <Plus size={20} />, route: "/addons" },
         // { name: "Users", icon: <Users size={20} />, route: "/users" },
         {name:"Profile", icon: <Users size={20} />, route: "/profile" },
+        {name:"FAQs", icon: <span style={{ fontSize: 20 }}>?</span>, route: "/faqs" },
         // { name: "Customers", icon: <Users size={20} />, route: "/customers" },
         // { name: "Gallery", icon: <Images size={20} />, route: "/gallery" },
     ];
