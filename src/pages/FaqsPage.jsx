@@ -43,7 +43,7 @@ const FaqsPage = () => {
   const [showModal, setShowModal] = useState(false);
   const [faqToDelete, setFaqToDelete] = useState(null);
   const formRef = useRef(null);
-
+// FG will dumaic when a central state used
   const { data: faqs, isLoading, error } = useGetFaqs("FG");
   const createFaqMutation = useCreateFaq('FG');
   const updateFaqMutation = useUpdateFaq('FG');
