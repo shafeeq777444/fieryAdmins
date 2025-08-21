@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import Cropper from 'react-easy-crop';
 
-const BANNER_ASPECT = 16 / 9;
+const BANNER_ASPECT = 4 / 5;
 
 // Utility to crop the image and return a blob
 function createImage(url) {
@@ -64,7 +64,7 @@ const ImageCropper = ({ imageUrl, onCropComplete, onClose }) => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 animate-fade-in">
       <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-lg animate-slide-up">
-        <h3 className="text-lg font-semibold mb-4 animate-fade-in-delay">Crop Image (16:9) - Required</h3>
+        <h3 className="text-lg font-semibold mb-4 animate-fade-in-delay">Crop Image (4:5) - Required</h3>
         <p className="text-sm text-gray-600 mb-4 animate-fade-in-delay-2">Please crop your image to continue</p>
         <div className="relative w-full h-64 bg-gray-100 rounded-lg overflow-hidden animate-fade-in-delay-3">
           <Cropper
@@ -104,4 +104,4 @@ const ImageCropper = ({ imageUrl, onCropComplete, onClose }) => {
   );
 };
 
-export default ImageCropper; 
+export default ImageCropper;

@@ -1,37 +1,62 @@
-import React, { useState } from 'react';
-import ImageCropper from './ImageCropper';
-import Toast from './Toast';
-import ImageUpload from './ImageUpload';
+import React, { useState, useEffect } from "react";
+import ImageCropper from "./ImageCropper";
+import Toast from "./Toast";
+import ImageUpload from "./ImageUpload";
+import { Plus } from "lucide-react"; // icon
 
 const OfferBannerFormModal = ({ initialData, onClose, onSubmit }) => {
-  const [title, setTitle] = useState(initialData?.title || '');
-  const [description, setDescription] = useState(initialData?.description || '');
+  const [title, setTitle] = useState(initialData?.title || "");
+  const [mainDescription, setMainDescription] = useState("");
+  const [points, setPoints] = useState([]);
   const [imageFile, setImageFile] = useState(null);
   const [imageUrl, setImageUrl] = useState(initialData?.image || null);
   const [showCropper, setShowCropper] = useState(false);
-  const [imageError, setImageError] = useState('');
-  const [toast, setToast] = useState({ show: false, message: '', type: 'error' });
+  const [imageError, setImageError] = useState("");
+  const [toast, setToast] = useState({ show: false, message: "", type: "error" });
 
-  const showToast = (message, type = 'error') => {
+  const showToast = (message, type = "error") => {
     setToast({ show: true, message, type });
-    setTimeout(() => setToast({ show: false, message: '', type: 'error' }), 3000);
+    setTimeout(() => setToast({ show: false, message: "", type: "error" }), 3000);
+  };
+
+  // Parse description when editing
+  useEffect(() => {
+    if (initialData?.description) {
+      const cleaned = initialData.description.replace(/^\/\*/, "").trim();
+      const parts = cleaned.split("/-").map((p) => p.trim()).filter(Boolean);
+
+      if (parts.length > 0) {
+        setMainDescription(parts[0]);
+        setPoints(parts.slice(1));
+      }
+    }
+  }, [initialData]);
+
+  // Add new empty point
+  const handleAddPoint = () => {
+    setPoints([...points, ""]);
+  };
+
+  // Update point text
+  const handlePointChange = (index, value) => {
+    const updated = [...points];
+    updated[index] = value;
+    setPoints(updated);
   };
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      // Check file size (5MB = 5 * 1024 * 1024 bytes)
-      const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+      const maxSize = 5 * 1024 * 1024;
       if (file.size > maxSize) {
-        showToast('File size must be less than 5MB');
-        setImageError('File size must be less than 5MB');
+        showToast("File size must be less than 5MB");
+        setImageError("File size must be less than 5MB");
         setImageFile(null);
         setImageUrl(null);
         setShowCropper(false);
         return;
       }
-      
-      setImageError('');
+      setImageError("");
       setImageFile(file);
       setImageUrl(URL.createObjectURL(file));
       setShowCropper(true);
@@ -39,61 +64,94 @@ const OfferBannerFormModal = ({ initialData, onClose, onSubmit }) => {
   };
 
   const handleCropComplete = (croppedBlob) => {
-    setImageFile(new File([croppedBlob], imageFile.name || 'cropped.jpg', { type: 'image/jpeg' }));
+    setImageFile(new File([croppedBlob], imageFile?.name || "cropped.jpg", { type: "image/jpeg" }));
     setImageUrl(URL.createObjectURL(croppedBlob));
     setShowCropper(false);
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!imageFile) {
-      showToast('Please select and crop an image');
+
+    if (!imageFile && !initialData) {
+      showToast("Please select and crop an image");
       return;
     }
+
+    // build final description string: ¸
+    const finalDescription = `/*${mainDescription}${points.length ? "/-" + points.join("/-") : ""}`;
+
     const formData = new FormData();
-    formData.append('title', title);
-    formData.append('description', description);
-    formData.append('image', imageFile);
+    formData.append("title", title);
+    formData.append("description", finalDescription.trim());
+    if (imageFile) {
+      formData.append("image", imageFile);
+    }
+
     onSubmit(formData);
   };
 
   return (
     <>
-      <div className="fixed inset-0 bg-black/20 bg-opacity-50 flex items-center justify-center z-50 p-4 animate-fade-in">
+      <div className="fixed inset-0 bg-black/20 flex items-center justify-center z-50 p-4 animate-fade-in">
         <div className="bg-white rounded-xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto animate-slide-up">
           <div className="p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-6 animate-fade-in-delay">
-              {initialData ? 'Edit Banner' : 'Add New Banner'}
+            <h2 className="text-xl font-semibold text-gray-900 mb-6">
+              {initialData ? "Edit Banner" : "Add New Banner"}
             </h2>
+
             <form onSubmit={handleSubmit} className="space-y-5">
-              <div className="animate-fade-in-delay-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Title
-                </label>
+              {/* Title */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Title</label>
                 <input
                   type="text"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   required
-                  className="w-full border border-gray-300 px-3 py-2.5 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
+                  className="w-full border px-3 py-2.5 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
                   placeholder="Enter banner title"
                 />
               </div>
-              <div className="animate-fade-in-delay-3">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Description
-                </label>
-                <textarea
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
+
+              {/* Main Description */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Main Description</label>
+                <input
+                  type="text"
+                  value={mainDescription}
+                  onChange={(e) => setMainDescription(e.target.value)}
                   required
-                  rows={3}
-                  className="w-full border border-gray-300 px-3 py-2.5 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 resize-none hover:border-gray-400"
-                  placeholder="Enter banner description"
+                  className="w-full border px-3 py-2.5 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
+                  placeholder="Enter main description"
                 />
               </div>
-              
-              <div className="animate-fade-in-delay-4">
+
+              {/* Points with plus button */}
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-sm font-medium text-gray-700">Points</label>
+                  <button
+                    type="button"
+                    onClick={handleAddPoint}
+                    className="flex items-center text-blue-600 hover:text-blue-800"
+                  >
+                    <Plus size={18} className="mr-1" /> Add
+                  </button>
+                </div>
+                {points.map((point, idx) => (
+                  <input
+                    key={idx}
+                    type="text"
+                    value={point}
+                    onChange={(e) => handlePointChange(idx, e.target.value)}
+                    className="w-full border px-3 py-2 mb-2 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
+                    placeholder={`Point ${idx + 1}`}
+                  />
+                ))}
+              </div>
+
+              {/* Image Upload */}
+              <div>
                 <ImageUpload
                   onImageChange={handleImageChange}
                   imageUrl={imageUrl}
@@ -101,28 +159,29 @@ const OfferBannerFormModal = ({ initialData, onClose, onSubmit }) => {
                   showCropper={showCropper}
                 />
               </div>
-              
-              <div className="flex justify-end gap-3 pt-4 border-t border-gray-200 animate-fade-in-delay-5">
+
+              {/* Footer buttons */}
+              <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
                 <button
                   type="button"
                   onClick={onClose}
-                  className="px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-200 hover:shadow-sm"
+                  className="px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border rounded-lg hover:bg-gray-50"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 hover:shadow-md transform hover:scale-105"
+                  className="px-4 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700"
                 >
-                  {initialData ? 'Update' : 'Create'}
+                  {initialData ? "Update" : "Create"}
                 </button>
               </div>
             </form>
           </div>
         </div>
       </div>
-      
-      {/* Image Cropper Modal */}
+
+      {/* Image Cropper */}
       {showCropper && (
         <ImageCropper
           imageUrl={imageUrl}
@@ -130,13 +189,13 @@ const OfferBannerFormModal = ({ initialData, onClose, onSubmit }) => {
           onClose={() => setShowCropper(false)}
         />
       )}
-      
-      {/* Toast Notification */}
+
+      {/* Toast */}
       <Toast
         show={toast.show}
         message={toast.message}
         type={toast.type}
-        onClose={() => setToast({ show: false, message: '', type: 'error' })}
+        onClose={() => setToast({ show: false, message: "", type: "error" })}
       />
     </>
   );

@@ -18,7 +18,7 @@ const ImageUpload = ({
   return (
     <div>
       <label className="block text-sm font-medium text-gray-700 mb-2">
-        Image (Standard: 16:9) - Max {formatFileSize(maxSize)}
+        Image (Standard: 4:5) - Max {formatFileSize(maxSize)}
       </label>
       <div className="relative">
         <input
@@ -31,16 +31,17 @@ const ImageUpload = ({
           <p className="text-red-500 text-sm mt-1 animate-fade-in">{imageError}</p>
         )}
         {imageUrl && !showCropper && (
-          <img
-            src={imageUrl}
-            alt="Preview"
-            className="mt-2 rounded-lg border w-full aspect-video object-cover animate-fade-in transition-all duration-300 hover:shadow-md hover:scale-[1.02]"
-            style={{ maxHeight: 180 }}
-          />
+          <div className="mt-2 w-full aspect-[4/5] overflow-hidden rounded-lg border animate-fade-in">
+            <img
+              src={imageUrl}
+              alt="Preview"
+              className="w-full h-full object-cover transition-all duration-300 hover:shadow-md hover:scale-[1.02]"
+            />
+          </div>
         )}
       </div>
     </div>
   );
 };
 
-export default ImageUpload; 
+export default ImageUpload;
