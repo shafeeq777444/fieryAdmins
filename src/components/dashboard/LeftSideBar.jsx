@@ -11,22 +11,21 @@ import {
     ChevronUp,
     Menu,
     X,
-    CalendarDays,
     Plus,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import localforage from "localforage";
 
 const Sidebar = () => {
     const [activeItem, setActiveItem] = useState("All");
     const [selectedVendor, setSelectedVendor] = useState(0);
     const [isVendorDropdownOpen, setIsVendorDropdownOpen] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
 
     const navigate = useNavigate();
-
     const dropdownRef = useRef(null);
 
-    // Handle clicks outside the dropdown to close it
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -35,122 +34,96 @@ const Sidebar = () => {
         };
 
         document.addEventListener("mousedown", handleClickOutside);
-        return () => {
-            document.removeEventListener("mousedown", handleClickOutside);
-        };
+        return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
-    // Sample vendor data - replace with your actual vendors
     const vendors = [
-        // { id: 1, name: "All", logo: "/demoLogos/alldemoLogo.png" },
         { id: 1, name: "Fiery Grills", logo: "/FieryGrills/logos/fieryLogo1.png" },
-        // { id: 2, name: "Bakery Three", logo: "/demoLogos/demoLogo2.png" },
-        // { id: 3, name: "Bar Four", logo: "/demoLogos/demoLogo1.png" },
-        // { id: 4, name: "Food Truck Five", logo: "/demoLogos/demoLogo3.png" },
     ];
 
     const menuItems = [
-        // { name: "Dashboard", icon: <Home size={20} />, route: "/" },
-        // { name: "Weekly Menu", icon: <CalendarDays size={20} />, route: "/weeklymenu" },
-        // { name: "Total Menu", icon: <UtensilsCrossed size={20} />, route: "/menu" },
         { name: "Offer Banners", icon: <Images size={20} />, route: "/" },
         { name: "Subscriptions", icon: <Receipt size={20} />, route: "/subscriptions" },
         { name: "Add Ons", icon: <Plus size={20} />, route: "/addons" },
-        // { name: "Users", icon: <Users size={20} />, route: "/users" },
-        {name:"Profile", icon: <Users size={20} />, route: "/profile" },
-        {name:"FAQs", icon: <span style={{ fontSize: 20 }}>?</span>, route: "/faqs" },
-        {name:"Customers", icon: <Bell size={20} />, route: "/customers" },
-        // { name: "Customers", icon: <Users size={20} />, route: "/customers" },
-        // { name: "Gallery", icon: <Images size={20} />, route: "/gallery" },
+        { name: "Profile", icon: <Users size={20} />, route: "/profile" },
+        { name: "FAQs", icon: <span style={{ fontSize: 20 }}>?</span>, route: "/faqs" },
     ];
 
     const bottomMenuItems = [
-        // { name: 'Notifications', icon: <Bell size={20} /> },
-        { name: "Mails", icon: <Bell size={20} />, route: "/mails" },
-        { name: "Logout", icon: <LogOut size={20} />, route: "/logout" },
+        { name: "Customers", icon: <Bell size={20} />, route: "/customers" },
+        { name: "Logout", icon: <LogOut size={20} /> },
     ];
 
-    const handleItemClick = (itemName, route) => {
+    const handleItemClick = async (itemName, route) => {
         setActiveItem(itemName);
-        console.log(route, "--route");
-        if (route) {
-            navigate(route); // 👈 this does the routing
+
+        if (itemName === "Logout") {
+            setIsLogoutModalOpen(true);
+            return;
         }
 
-        // On mobile, close the menu after item selection
-        if (window.innerWidth < 768) {
-            setIsMobileMenuOpen(false);
-        }
+        if (route) navigate(route);
+        if (window.innerWidth < 768) setIsMobileMenuOpen(false);
     };
 
-    const toggleVendorDropdown = () => {
-        setIsVendorDropdownOpen(!isVendorDropdownOpen);
+    const confirmLogout = async () => {
+        await localforage.clear();
+        navigate("/login");
     };
 
+    const toggleVendorDropdown = () => setIsVendorDropdownOpen(!isVendorDropdownOpen);
     const selectVendor = (index) => {
         setSelectedVendor(index);
         setIsVendorDropdownOpen(false);
     };
-
-    const toggleMobileMenu = () => {
-        setIsMobileMenuOpen(!isMobileMenuOpen);
-    };
+    const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
 
     return (
         <>
-            {/* Mobile Menu Toggle Button */}
+            {/* Mobile Menu Toggle */}
             <div className="md:hidden fixed top-4 left-4 z-30">
-                <button onClick={toggleMobileMenu} className="p-2 bg-black rounded-md text-white" type="button">
+                <button onClick={toggleMobileMenu} className="p-2 bg-black rounded-md text-white">
                     {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
                 </button>
             </div>
 
-            {/* Sidebar - hidden on mobile unless toggled */}
+            {/* Sidebar */}
             <div
                 className={`
-          fixed md:static inset-y-0 left-0 z-20  transform 
-          ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"}
-          md:translate-x-0 transition-transform duration-300 ease-in-out
-          h-screen w-64 bg-black text-white flex flex-col
-      `}
+                    fixed md:static inset-y-0 left-0 z-20 transform
+                    ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"}
+                    md:translate-x-0 transition-transform duration-300 ease-in-out
+                    h-screen w-64 bg-black text-white flex flex-col
+                `}
             >
                 {/* Logo */}
                 <div className="p-6 flex justify-center items-center">
-                    <div className="text-2xl font-bold italic ">
-                        <img
-                            className="w-14 h-14 "
-                            src={vendors[selectedVendor].logo}
-                            alt={`${vendors[selectedVendor].name} logo`}
-                        />
-                    </div>
+                    <img
+                        className="w-14 h-14"
+                        src={vendors[selectedVendor].logo}
+                        alt={`${vendors[selectedVendor].name} logo`}
+                    />
                 </div>
 
-                {/* Vendor Selector with Fixed Dropdown */}
-                <div className="px-6 " ref={dropdownRef}>
-                    {/* Blur background when dropdown is open */}
-                    {isVendorDropdownOpen && (
-                        <div className="absolute top-0 left-0 w-full h-full bg-black bg-opacity-90 backdrop-blur-sm z-0 rounded-md"></div>
-                    )}
-
-                    {/* Vendor Selection UI */}
+                {/* Vendor Selector */}
+                <div className="px-6 relative" ref={dropdownRef}>
                     <div
-                        className="flex items-center justify-between p-2 rounded-md cursor-pointer relative z-10"
+                        className="flex items-center justify-between p-2 rounded-md cursor-pointer"
                         onClick={toggleVendorDropdown}
                     >
                         <span className="font-medium">{vendors[selectedVendor].name}</span>
                         {isVendorDropdownOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                     </div>
 
-                    {/* Vendor Dropdown */}
                     {isVendorDropdownOpen && (
-                        <div className="absolute left-6 right-6 mt-1 bg-black rounded-lg overflow-hidden shadow-lg z-20 ">
+                        <div className="absolute left-0 right-0 mt-2 bg-gray-800 rounded-md overflow-hidden z-20">
                             {vendors.map((vendor, index) => (
                                 <div
                                     key={vendor.id}
                                     className={`flex items-center p-2 cursor-pointer ${
                                         selectedVendor === index
-                                            ? "bg-gray-700/30 rounded-md"
-                                            : "hover:bg-gray-700/40 transition-all duration-200 ease-in-out hover:rounded-md"
+                                            ? "bg-gray-700/50"
+                                            : "hover:bg-gray-700/30"
                                     }`}
                                     onClick={() => selectVendor(index)}
                                 >
@@ -162,16 +135,15 @@ const Sidebar = () => {
                 </div>
 
                 {/* Main Navigation */}
-                <nav className="flex-1 overflow-y-auto">
+                <nav className="flex-1 overflow-y-auto mt-4">
                     <ul className="space-y-1">
                         {menuItems.map((item) => (
                             <li key={item.name}>
                                 <button
                                     className={`w-full flex items-center px-6 py-3 text-left ${
                                         activeItem === item.name ? "text-white" : "text-gray-400"
-                                    } hover:text-white transition-colors`}
+                                    } hover:text-white`}
                                     onClick={() => handleItemClick(item.name, item.route)}
-                                    type="button"
                                 >
                                     <span className="mr-3">{item.icon}</span>
                                     {item.name}
@@ -181,20 +153,16 @@ const Sidebar = () => {
                     </ul>
                 </nav>
 
-                {/* Divider */}
-                <div className="mx-6 my-4 border-t border-gray-700"></div>
-
                 {/* Bottom Navigation */}
-                <nav className="mb-6">
+                <nav className="mb-6 mt-auto">
                     <ul className="space-y-1">
                         {bottomMenuItems.map((item) => (
                             <li key={item.name}>
                                 <button
                                     className={`w-full flex items-center px-6 py-3 text-left ${
                                         activeItem === item.name ? "text-white" : "text-gray-400"
-                                    } hover:text-white transition-colors`}
+                                    } hover:text-white`}
                                     onClick={() => handleItemClick(item.name, item.route)}
-                                    type="button"
                                 >
                                     <span className="mr-3">{item.icon}</span>
                                     {item.name}
@@ -205,9 +173,47 @@ const Sidebar = () => {
                 </nav>
             </div>
 
-            {/* Mobile overlay backdrop */}
+            {/* Mobile overlay */}
             {isMobileMenuOpen && (
-                <div className="md:hidden fixed inset-0 bg-black/10 bg-opacity-50 z-10" onClick={toggleMobileMenu}></div>
+                <div className="md:hidden fixed inset-0 bg-black/10 z-10" onClick={toggleMobileMenu}></div>
+            )}
+
+            {/* Logout Confirmation Modal */}
+            {isLogoutModalOpen && (
+                <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50 animate-fadeIn">
+                    <div className="bg-white dark:bg-gray-900 text-gray-900 dark:text-white rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 p-8 w-96 max-w-md mx-4 transform transition-all duration-300 animate-slideUp">
+                        {/* Header with Icon */}
+                        <div className="flex items-center justify-center mb-6">
+                            <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center">
+                                <svg className="w-8 h-8 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                                </svg>
+                            </div>
+                        </div>
+                        
+                        {/* Content */}
+                        <div className="text-center mb-8">
+                            <h2 className="text-2xl font-bold mb-3 text-gray-900 dark:text-white">Confirm Logout</h2>
+                            <p className="text-gray-600 dark:text-gray-300 leading-relaxed">Are you sure you want to log out? You'll need to sign in again to access your account.</p>
+                        </div>
+                        
+                        {/* Action Buttons */}
+                        <div className="flex flex-col sm:flex-row gap-3">
+                            <button
+                                onClick={() => setIsLogoutModalOpen(false)}
+                                className="flex-1 px-6 py-3 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 hover:border-gray-400 dark:hover:border-gray-500 transition-all duration-200 font-medium focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={confirmLogout}
+                                className="flex-1 px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl transition-all  font-medium shadow-lg hover:shadow-xl transform focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
+                            >
+                                Logout
+                            </button>
+                        </div>
+                    </div>
+                </div>
             )}
         </>
     );

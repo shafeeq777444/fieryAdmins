@@ -8,6 +8,7 @@ import {
 import OfferBannerFormModal from '../components/offerBanner/OfferBannerFormModal';
 import OfferBannerList from '../components/offerBanner/OfferBannerList';
 import OfferBannerSkeletonCard from '../components/skeltons/OfferBannerSKelton';
+import Loading from '../components/common/Loading';
 
 
 
@@ -20,17 +21,30 @@ const OfferBannerContainer = ({ vendorId = "FG" }) => {
 
   const [editingBanner, setEditingBanner] = useState(null); // for update
   const [isModalOpen, setIsModalOpen] = useState(false);    // for form modal
+  const [isUpdationLoading, setIsUpdationLoading] = useState(false);
 
   const handleCreateOrUpdate = (formData) => {
     if (editingBanner) {
+      setIsUpdationLoading(true);
       updateMutation.mutate({
         id: editingBanner._id,
         updateData: formData,
+      },{
+        onSuccess: () => {
+          setIsUpdationLoading(false);
+        }
       });
     } else {
       createMutation.mutate({
         vendor: vendorId,
         newData: formData,
+      },{
+        onSuccess: () => {
+          setIsUpdationLoading(false);
+        },
+        onError: () => {
+          setIsUpdationLoading(false);
+        }
       });
     }
     setIsModalOpen(false);
@@ -38,9 +52,15 @@ const OfferBannerContainer = ({ vendorId = "FG" }) => {
   };
 
   const handleDelete = (id) => {
-
-      deleteMutation.mutate({ id });
-
+    setIsUpdationLoading(true);
+      deleteMutation.mutate({ id },{
+        onSuccess: () => {
+          setIsUpdationLoading(false);
+        },
+        onError: () => {
+          setIsUpdationLoading(false);
+        }
+      }); 
   };
 if(isLoading){
   return (<>{Array.from({ length: 6 }).map((_, i) => <OfferBannerSkeletonCard key={i} />)}</>);
@@ -82,6 +102,7 @@ if(isLoading){
           onSubmit={handleCreateOrUpdate}
         />
       )}
+      {isUpdationLoading && <Loading/>}
     </div>
   );
 };
